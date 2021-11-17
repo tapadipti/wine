@@ -6,7 +6,9 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - uses: iterative/setup-cml@v1
-      - name: Train model
+      - name: Train model and send CML report
+        env:
+          REPO_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           # Your ML workflow goes here
           pip install -r requirements.txt
@@ -15,3 +17,9 @@ jobs:
           echo "## MODEL METRICS" > report.md
           cat metrics.txt >> report.md
           cat report.md
+          
+          echo "## DATA VIZ" > report.md
+          cml-publish feature-importance.png --md >> report.md
+          cml-publish residuals.png --md >> report
+          
+          cml-send-comment report.md
